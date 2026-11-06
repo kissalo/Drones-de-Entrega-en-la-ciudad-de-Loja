@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drones de entrega - Loja</title>
+    <style>
+      html, body, #root { margin: 0; height: 100%; font-family: system-ui, sans-serif; }
+      body { background: #10151c; color: #e6edf3; }
+      .app { display: flex; height: 100%; }
+      .panel { width: 290px; padding: 14px; overflow-y: auto; background: #161c26; font-size: 13px; }
+      .panel h1 { font-size: 16px; margin: 0 0 10px; }
+      .panel h2 { font-size: 12px; margin: 14px 0 6px; text-transform: uppercase; color: #8b98a8; }
+      .fila { display: flex; gap: 6px; margin-bottom: 6px; }
+      .fila label { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: #8b98a8; }
+      .panel input[type=number] { width: 100%; box-sizing: border-box; padding: 4px; background: #0d1117; color: inherit; border: 1px solid #30363d; border-radius: 4px; }
+      .panel button { width: 100%; padding: 8px; margin-top: 6px; border: 0; border-radius: 6px; background: #2f81f7; color: #fff; cursor: pointer; }
+      .panel button.sec { background: #30363d; }
+      .panel button:disabled { opacity: .5; cursor: default; }
+      .datos div { display: flex; justify-content: space-between; padding: 2px 0; }
+      .escena { flex: 1; position: relative; }
+      .error { color: #ff7b72; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/main.jsx"></script>
+  </body>
+</html>
