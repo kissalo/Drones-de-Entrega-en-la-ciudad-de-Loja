@@ -1,5 +1,10 @@
 // DESPACHADOR: los ciudadanos hacen pedidos (RF-09) → entran a una COLA FIFO → se asignan al primer
 // worker libre. Los resultados se buscan por id en un Map (O(1)).
+
+//Recibe la orden , para que vayan en orden aplicando FIFO, y se asigna a 
+// un worker libre para que lo procese.
+
+
 import os from 'node:os';
 import { Worker } from 'node:worker_threads';
 import { ColaFIFO } from '../estructuras/cola-fifo.js';

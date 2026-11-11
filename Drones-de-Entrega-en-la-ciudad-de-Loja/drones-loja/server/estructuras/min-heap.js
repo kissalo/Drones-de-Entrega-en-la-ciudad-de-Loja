@@ -1,6 +1,9 @@
 // COLA DE PRIORIDAD (min-heap binario) sobre Typed Arrays.
 // push y pop: O(log n). Dijkstra/A* la usan en cada paso (antes: sort() + shift() = O(n log n)).
 // vaciar() solo pone n = 0: el mismo heap se reutiliza en cada replanificación (RNF-02).
+
+//Da prioridad al camino mas corto y de menor costo y este lo manda a buscador de rutas.
+
 export class MinHeap {
   constructor(capacidad = 1024) {
     this.claves = new Float64Array(capacidad);

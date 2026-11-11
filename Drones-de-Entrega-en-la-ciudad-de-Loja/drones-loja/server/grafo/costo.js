@@ -2,6 +2,9 @@
 //   horizontal : K_HORIZ * (masa dron + producto) * distancia * factor de capa * factor de viento
 //   ascenso    : K_SUBIDA * masa * metros que sube (bajar no cuesta)
 // Lo que NO depende del pedido (distancia, desnivel, dirección) ya viene precalculado en el grafo.
+
+//Mide el costo de energia dependiendo de los factores, distancia, peso, viento, etc. 
+
 import {
   MASA_DRON_KG, K_HORIZ, K_SUBIDA, FACTOR_CAPA, BONO_VIENTO, VIENTO_MAX_MS, DESCENSO_FACTOR,
 } from '../config.js';

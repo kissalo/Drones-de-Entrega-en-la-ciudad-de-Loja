@@ -1,6 +1,9 @@
 // BUSCADOR: Dijkstra 3D con min-heap. Con aEstrella = true agrega la heurística (A*) y explora
 // bastantes menos nodos con el MISMO costo final. Los arreglos de trabajo se crean UNA vez
 // y se reinician con fill() en cada búsqueda (RNF-02): no se crean objetos nuevos por replanificación.
+
+//Usa Dijkstra para encontrar el camino mas corto y economico.
+
 import { GRADO } from '../config.js';
 import { MinHeap } from '../estructuras/min-heap.js';
 import { Pila, reconstruir } from './reconstruir.js';

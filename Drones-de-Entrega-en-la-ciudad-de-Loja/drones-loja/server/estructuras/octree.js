@@ -2,6 +2,9 @@
 // contienePunto(): baja por UNA sola rama (profundidad máx. ≈ 8) y compara pocos obstáculos,
 // en vez de recorrer todos los edificios (O(n)).
 // Las cajas se guardan agrandadas por `margen` (RNF-05), así la consulta del punto ya es segura.
+
+//Divide el espacio aereo en cubitos para evitar colisiones con obstaculos.
+
 const solapa = (a, b) =>
   a.minx <= b.maxx && a.maxx >= b.minx &&
   a.miny <= b.maxy && a.maxy >= b.miny &&

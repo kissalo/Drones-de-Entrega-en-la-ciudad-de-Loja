@@ -1,6 +1,10 @@
 // Carga de archivos por STREAMS: se leen por trozos (una línea a la vez) y cada dato se coloca
 // directamente en su estructura final. La memoria extra para leer el archivo es O(1),
 // no O(tamaño del archivo) como con fs.readFileSync.
+
+//Nos indican la ubicacion de las estaciones de carga e indica los puntos obligatorios de carga 
+//para que el dron no se muera en el aire
+
 import fs from 'node:fs';
 import readline from 'node:readline';
 import { FILAS, COLS, MARGEN_SEGURIDAD_M } from '../config.js';
