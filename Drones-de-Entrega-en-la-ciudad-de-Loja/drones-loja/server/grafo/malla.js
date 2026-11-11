@@ -2,7 +2,7 @@
 // Así dist/prev/bloqueado son Typed Arrays (memoria contigua, sin objetos para el recolector)
 // y los vecinos se calculan con aritmética: no hay que guardar 80 000 aristas como objetos.
 
-//define las rutas y direcciones por donde el dron puede pasar.
+//define las rutas y direcciones por donde el dron puede pasar, es el mapa.
 
 
 import { FILAS, COLS, CAPAS } from '../config.js';
