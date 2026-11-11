@@ -1,5 +1,7 @@
 // COLA FIFO circular: dos índices (ini, n) sobre un arreglo.
 // encolar y desencolar: O(1). Array.shift() es O(n) porque mueve todos los elementos.
+
+
 export class ColaFIFO {
   constructor(capacidad = 16) {
     this.buf = new Array(capacidad);

@@ -18,6 +18,13 @@ export class MinHeap {
     this.claves = k; this.valores = v;
   }
 
+//  Es un árbol binario guardado en un arreglo: el padre de la posición i está en (i menos 1) dividido entre 2, 
+// y la regla es que un padre nunca es mayor que sus hijos. 
+// push sube el elemento hasta su lugar y pop saca la raíz y baja el último. 
+// Ambas cuestan O(log n). Usa dos Typed Arrays, uno para los costos y otro para los ids de nodo, 
+// y el método vaciar solo pone el contador en cero, para reutilizarlo en cada búsqueda.
+
+
   push(clave, valor) {
     if (this.n === this.claves.length) this._crecer();
     const k = this.claves, v = this.valores;
