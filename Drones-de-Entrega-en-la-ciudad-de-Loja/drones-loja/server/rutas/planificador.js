@@ -1,6 +1,9 @@
 // PLANIFICADOR: reglas del negocio encima del buscador.
 //  RF-01 ruta de menor consumo | RF-02 viento | RF-04 peso | RF-06 descenso lento
 //  RF-07 puntos de carga       | RF-08 ruta alterna (replanificar tras un obstáculo)
+
+//Estructura el viaje, y trata de proteger disque al dron, su bateria, decenso lento, etc.
+
 import path from 'node:path';
 import {
   FILAS, COLS, CAPAS, ANCHO_X, ALTO_Y, Z_MAX, BATERIA_WH, RESERVA_BATERIA, VEL_CRUCERO,

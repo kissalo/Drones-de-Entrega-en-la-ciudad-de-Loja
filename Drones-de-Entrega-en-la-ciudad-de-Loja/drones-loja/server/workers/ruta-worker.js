@@ -1,5 +1,9 @@
 // WORKER: calcula rutas fuera del hilo principal para no bloquear el Event Loop de Express (RNF-01).
 // Cada worker carga su propia copia del mapa; los obstáculos nuevos se le envían por mensaje.
+
+//El despachador le asigna la orden al worker y este calcula la ruta en segundo plano 
+// para no bloquear el sistema.
+
 import { parentPort } from 'node:worker_threads';
 import { DATA_DIR } from '../config.js';
 import { crearSistema, planificar, registrarObstaculo } from '../rutas/planificador.js';

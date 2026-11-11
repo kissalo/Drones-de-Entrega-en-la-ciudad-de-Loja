@@ -1,5 +1,10 @@
 // PILA (LIFO) sobre Int32Array. Dijkstra solo deja "de dónde vine" en prev[], así que la ruta
 // sale DESTINO → ORIGEN. Se apilan los nodos y al sacarlos quedan en orden ORIGEN → DESTINO.
+
+//Aqui usamos una pila para ayudarnos a reconstruir el camino, porque nos lo da 
+//al reves desde destino a origen, entonces aplicamos LIFO para tener la ruta correcta
+
+
 export class Pila {
   constructor(capacidad) { this.a = new Int32Array(capacidad); this.n = 0; }
   push(x) { this.a[this.n++] = x; }

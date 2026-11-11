@@ -1,6 +1,10 @@
 // CONSTRUCTOR del grafo multicapa 3D (lista de adyacencia implícita en arreglos paralelos).
 // La arista e = nodo*GRADO + k  guarda: destino, distancia 3D, desnivel, dirección y si está bloqueada.
 // Todo vive en Typed Arrays de tamaño fijo → O(V) de memoria, V = FILAS*COLS*CAPAS.
+
+//Asegura que el dron no choque con edificios y que no vuele 
+//por debajo del terreno, recalcula la ruta de la zona afectada
+
 import { COLS, GRADO, TAM_CELDA, ALTURAS_CAPA, MARGEN_SEGURIDAD_M } from '../config.js';
 import { TOTAL, CELDAS, filaDe, colDe, capaDe, vecino } from './malla.js';
 
