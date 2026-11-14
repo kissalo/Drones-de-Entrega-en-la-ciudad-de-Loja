@@ -8,7 +8,9 @@
     "server": "node server/index.js",
     "cliente": "vite cliente",
     "prueba": "node pruebas/prueba-flujo.js",
-    "benchmark": "node pruebas/benchmark.js"
+    "benchmark": "node pruebas/benchmark.js",
+    "ordenar": "node --expose-gc pruebas/benchmark-ordenamiento.js",
+    "prueba:orden": "node pruebas/prueba-ordenamiento.js"
   },
   "dependencies": {
     "express": "^4.21.0",
