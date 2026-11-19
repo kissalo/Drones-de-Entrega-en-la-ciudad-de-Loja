@@ -8,7 +8,7 @@ import { performance } from 'node:perf_hooks';
 import { busquedaSecuencial } from '../busqueda/busqueda-secuencial.js';
 import { busquedaBinaria } from '../busqueda/busqueda-binaria.js';
 import { generarDatasetOrdenado, generarObjetivos, VOLUMENES } from '../busqueda/generador-datos.js';
-import { escribirArchivoIndexado, busquedaSecuencialArchivo, busquedaBinariaArchivo, crearBloque, crearRegistro, TAM_REGISTRO } from '../busqueda/busqueda-archivo.js';
+import { escribirArchivoIndexado, busquedaSecuencialArchivo, busquedaBinariaArchivo, crearBloque, crearRegistro } from '../busqueda/busqueda-archivo.js';
 import { generarGraficos } from './grafico-busqueda.js';
 
 /* ---------- argumentos ---------- */
@@ -21,7 +21,6 @@ const REPS = Number(arg('reps', 7));                   // entre 5 y 10
 const CAMPO = 'id';
 const TIPOS = ['primera', 'ultima', 'central', 'aleatoria', 'no_existente'];
 const RAIZ = fileURLToPath(new URL('..', import.meta.url));
-const DIR_INFORME = path.resolve(arg('salida', path.join(RAIZ, 'informe-avance2', 'resultados')));
 const DIR_CRUDOS = path.resolve(arg('crudos', path.join(RAIZ, 'pruebas', 'resultados')));
 const OBJ_LOTE_MS = 20;   // cada medición dura al menos ~20 ms: así el reloj no se confunde con el ruido
 
@@ -30,16 +29,6 @@ const media = (v) => v.reduce((a, b) => a + b, 0) / v.length;
 const mediana = (v) => { const o = [...v].sort((a, b) => a - b), m = o.length >> 1; return o.length % 2 ? o[m] : (o[m - 1] + o[m]) / 2; };
 const desv = (v) => { if (v.length < 2) return 0; const m = media(v); return Math.sqrt(v.reduce((a, b) => a + (b - m) ** 2, 0) / (v.length - 1)); };
 const log2 = (x) => Math.log(x) / Math.LN2;
-const miles = (e) => String(e).replace(/\B(?=(\d{3})+(?!\d))/g, '\\,');
-function fmt(x) {   // coma decimal y espacio fino de miles (estilo ES) para LaTeX
-  if (!isFinite(x)) return '--';
-  const d = x >= 10 ? 2 : x >= 1 ? 3 : x >= 0.1 ? 4 : 5;
-  const [e, f] = Math.abs(x).toFixed(d).split('.');
-  return (x < 0 ? '-' : '') + miles(e) + '{,}' + f;
-}
-const fmtEntero = (x) => miles(Math.round(x));
-const esc = (s) => String(s).replace(/([\\&%$#_{}])/g, '\\$1').replace(/~/g, '\\textasciitilde{}').replace(/\^/g, '\\textasciicircum{}');
-const NOMBRE_TIPO = { primera: 'Primera', ultima: String.raw`\'Ultima`, central: 'Central', aleatoria: 'Aleatoria', no_existente: 'No existente' };
 
 // Comparaciones teóricas: promedio para "aleatoria"; valor exacto (secuencial) o cota del peor caso (binaria) para las fijas.
 function teorica(tipo, algoritmo, n) {
@@ -71,7 +60,6 @@ function cronometrar(lote, q) {
 
 /* ---------- experimento ---------- */
 async function main() {
-  fs.mkdirSync(DIR_INFORME, { recursive: true });
   fs.mkdirSync(DIR_CRUDOS, { recursive: true });
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-'));
   const bloque = crearBloque(), reg = crearRegistro();
@@ -141,11 +129,9 @@ async function main() {
   const entorno = { fecha: new Date().toISOString().slice(0, 10), node: process.version, so: `${os.type()} ${os.release()} (${process.platform}/${process.arch})`,
     cpu: os.cpus()[0] ? os.cpus()[0].model.trim() : 'desconocido', nucleos: os.cpus().length, ram_gb: (os.totalmem() / 2 ** 30).toFixed(1) };
   escribirCrudos(filas, sorts, entorno);
-  escribirParaInforme(filas, sorts, entorno);
   const pngs = await generarGraficos(filas, DIR_CRUDOS);
   console.log(`\nResultados crudos (CSV/JSON${pngs.length ? ' y PNG' : ''}) en ${DIR_CRUDOS}`);
   for (const p of pngs) console.log('  PNG: ' + path.basename(p));
-  console.log(`Archivos para el informe en ${DIR_INFORME}`);
 }
 
 /* ---------- resultados crudos: CSV + JSON ---------- */
@@ -158,68 +144,6 @@ function escribirCrudos(filas, sorts, entorno) {
   const cab = ['medio', 'n', 'tipo_clave', 'algoritmo', 'consultas', 'repeticiones', 't_prom_us', 't_mediana_us', 't_desv_us', 'cpu_prom_us', 'comp_medidas', 'comp_teoricas', 'lecturas_es', 'aceleracion'];
   fs.writeFileSync(path.join(DIR_CRUDOS, 'benchmark-busqueda.csv'), [cab.join(',')].concat(filas.map((f) => cab.map((k) => (f[k] === undefined ? '' : f[k])).join(','))).join('\n') + '\n');
   fs.writeFileSync(path.join(DIR_CRUDOS, 'benchmark-busqueda.json'), JSON.stringify({ entorno, parametros: { TAMANOS, Q_MEM, Q_ARCH, Q_FIJA, REPS, CAMPO }, generar_y_ordenar_ms: sorts, filas }, null, 2));
-}
-
-/* ---------- archivos que lee el informe LaTeX ---------- */
-function escribirParaInforme(filas, sorts, entorno) {
-  const prom = filas.filter((f) => f.tipo_clave === 'aleatoria');   // caso promedio
-  const g = (m, n, a) => prom.find((f) => f.medio === m && f.n === n && f.algoritmo === a);
-  const gt = (m, n, t, a) => filas.find((f) => f.medio === m && f.n === n && f.tipo_clave === t && f.algoritmo === a);
-
-  const ancho = ['n,seq_mem_us,bin_mem_us,seq_arch_us,bin_arch_us,comp_seq,comp_bin,lect_seq_arch,lect_bin_arch'];
-  for (const n of TAMANOS) ancho.push([n, g('memoria', n, 'secuencial').t_prom_us, g('memoria', n, 'binaria').t_prom_us, g('archivo', n, 'secuencial').t_prom_us,
-    g('archivo', n, 'binaria').t_prom_us, g('memoria', n, 'secuencial').comp_medidas, g('memoria', n, 'binaria').comp_medidas,
-    g('archivo', n, 'secuencial').lecturas_es, g('archivo', n, 'binaria').lecturas_es].join(','));
-  fs.writeFileSync(path.join(DIR_INFORME, 'curvas.csv'), ancho.join('\n') + '\n');
-
-  // Tabla principal (clave aleatoria = caso promedio)
-  let tex = '', medioPrev = null;
-  for (const f of prom) {
-    if (medioPrev !== null && f.medio !== medioPrev) tex += '\\midrule\n';
-    medioPrev = f.medio;
-    tex += [f.medio === 'memoria' ? 'Memoria' : 'Archivo', `$${miles(f.n)}$`, f.algoritmo === 'secuencial' ? 'Secuencial' : 'Binaria',
-      fmt(f.t_prom_us), fmt(f.t_desv_us), fmt(f.cpu_prom_us), fmt(f.comp_medidas), fmt(f.comp_teoricas),
-      f.medio === 'archivo' ? fmt(f.lecturas_es) : '--', f.algoritmo === 'binaria' ? `$\\times$${fmt(f.aceleracion)}` : '--'].join(' & ') + ' \\\\\n';
-  }
-  fs.writeFileSync(path.join(DIR_INFORME, 'filas_tabla.tex'), tex.replace(/ \\\\\n$/, '\n'));   // sin el último salto: el .tex lo agrega tras \input
-
-  const nMin = Math.min(...TAMANOS), nMax = Math.max(...TAMANOS);
-
-  // Tabla por tipo de clave, con el mayor volumen
-  let tc = '';
-  for (const medio of ['memoria', 'archivo']) {
-    if (medio === 'archivo') tc += '\\midrule\n';
-    for (const tipo of TIPOS) {
-      const s = gt(medio, nMax, tipo, 'secuencial'), b = gt(medio, nMax, tipo, 'binaria');
-      tc += [medio === 'memoria' ? 'Memoria' : 'Archivo', NOMBRE_TIPO[tipo], fmt(s.t_prom_us), fmt(b.t_prom_us), fmt(s.comp_medidas), fmt(b.comp_medidas), `$\\times$${fmt(b.aceleracion)}`].join(' & ') + ' \\\\\n';
-    }
-  }
-  fs.writeFileSync(path.join(DIR_INFORME, 'filas_claves.tex'), tc.replace(/ \\\\\n$/, '\n'));
-
-  const sm = g('memoria', nMax, 'secuencial'), bm = g('memoria', nMax, 'binaria'), sa = g('archivo', nMax, 'secuencial'), ba = g('archivo', nMax, 'binaria');
-  const sm0 = g('memoria', nMin, 'secuencial'), bm0 = g('memoria', nMin, 'binaria'), sa0 = g('archivo', nMin, 'secuencial'), ba0 = g('archivo', nMin, 'binaria');
-  const pct = (x) => fmt(x * 100);
-  const M = {
-    nMin: `$${miles(nMin)}$`, nMax: `$${miles(nMax)}$`, NumConsMem: fmtEntero(Q_MEM), NumConsArch: fmtEntero(Q_ARCH), NumConsFija: fmtEntero(Q_FIJA), Reps: String(REPS),
-    FactorN: fmtEntero(nMax / nMin), FactorLog: fmt(log2(nMax) / log2(nMin)),
-    SpeedMemMax: fmt(sm.t_prom_us / bm.t_prom_us), SpeedArchMax: fmt(sa.t_prom_us / ba.t_prom_us),
-    SpeedMemMin: fmt(sm0.t_prom_us / bm0.t_prom_us), SpeedArchMin: fmt(sa0.t_prom_us / ba0.t_prom_us),
-    CompSecMax: fmt(sm.comp_medidas), CompBinMax: fmt(bm.comp_medidas), RatioCompMax: fmt(sm.comp_medidas / bm.comp_medidas),
-    CrecSecMem: fmt(sm.t_prom_us / sm0.t_prom_us), CrecBinMem: fmt(bm.t_prom_us / bm0.t_prom_us),
-    CrecSecArch: fmt(sa.t_prom_us / sa0.t_prom_us), CrecBinArch: fmt(ba.t_prom_us / ba0.t_prom_us),
-    AhorroCPUMem: pct(1 - bm.cpu_prom_us / sm.cpu_prom_us), AhorroCPUArch: pct(1 - ba.cpu_prom_us / sa.cpu_prom_us),
-    LectSecArch: fmt(sa.lecturas_es), LectBinArch: fmt(ba.lecturas_es),
-    TSecMemMax: fmt(sm.t_prom_us), TBinMemMax: fmt(bm.t_prom_us), TSecArchMax: fmt(sa.t_prom_us), TBinArchMax: fmt(ba.t_prom_us),
-    // peor caso (clave no existente) con el mayor volumen
-    PeorSecMem: fmt(gt('memoria', nMax, 'no_existente', 'secuencial').t_prom_us), PeorBinMem: fmt(gt('memoria', nMax, 'no_existente', 'binaria').t_prom_us),
-    PeorSecArch: fmt(gt('archivo', nMax, 'no_existente', 'secuencial').t_prom_us), PeorBinArch: fmt(gt('archivo', nMax, 'no_existente', 'binaria').t_prom_us),
-    PeorCompSec: fmt(gt('memoria', nMax, 'no_existente', 'secuencial').comp_medidas), PeorCompBin: fmt(gt('memoria', nMax, 'no_existente', 'binaria').comp_medidas),
-    TOrdenMax: fmt(sorts[nMax]), AmortMem: fmtEntero(Math.ceil((sorts[nMax] * 1000) / (sm.t_prom_us - bm.t_prom_us))),
-    KBMin: fmt((nMin * TAM_REGISTRO) / 1000), MBMax: fmt((nMax * TAM_REGISTRO) / 1e6),
-    EntFecha: entorno.fecha, EntNode: esc(entorno.node), EntSO: esc(entorno.so), EntCPU: esc(entorno.cpu),
-    EntNucleos: String(entorno.nucleos), EntRAM: String(entorno.ram_gb).replace('.', '{,}'),
-  };
-  fs.writeFileSync(path.join(DIR_INFORME, 'macros_resultados.tex'), Object.entries(M).map(([k, v]) => `\\newcommand{\\${k}}{${v}}`).join('\n') + '\n');
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
