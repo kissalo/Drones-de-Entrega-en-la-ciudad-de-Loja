@@ -47,6 +47,17 @@ export async function cargarEdificios(ruta, octree) {
   return n;
 }
 
+// Variante para ORDENAMIENTO: lee el mismo edificios.ndjson por stream pero devuelve la lista de registros
+// (con un id incremental) en lugar de insertarlos en el Octree.
+export async function cargarEdificiosLista(ruta) {
+  const lista = [];
+  for await (const l of lineas(ruta)) {
+    if (!l.trim()) continue;
+    lista.push({ id: lista.length + 1, ...JSON.parse(l) });
+  }
+  return lista;
+}
+
 // cargadores.json es pequeño: [{id, fila, col}]
 export async function cargarCargadores(ruta) {
   return JSON.parse(await fs.promises.readFile(ruta, 'utf8'));
