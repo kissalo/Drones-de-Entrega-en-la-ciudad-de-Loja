@@ -12,9 +12,9 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ============================================================
+
 // 1. Implementación de los algoritmos de búsqueda
-// ============================================================
+
 
 function busquedaSecuencial(arr, target) {
     for (let i = 0; i < arr.length; i++) {
@@ -39,9 +39,9 @@ function busquedaBinaria(arr, target) {
     return -1;
 }
 
-// ============================================================
+
 // 2. Utilidades de medición y estadísticas
-// ============================================================
+
 
 function medirTiempo(fn, arr, target, repeticiones = 7) {
     const tiempos = [];
@@ -64,9 +64,9 @@ function calentar(fn, arr, target) {
     }
 }
 
-// ============================================================
+
 // 3. Generación de datos sintéticos
-// ============================================================
+
 
 function generarArrayOrdenado(n) {
     const arr = new Array(n);
@@ -76,17 +76,16 @@ function generarArrayOrdenado(n) {
     return arr;
 }
 
-// ============================================================
+
 // 4. Configuración de los escenarios y claves de prueba
-// ============================================================
+
 
 const VOLUMENES = [1000, 50000, 500000];
 const TIPOS_CLAVE = ['primera', 'ultima', 'central', 'aleatoria', 'no_existente'];
 const REPETICIONES = 7;
 
-// ============================================================
 // 5. Función principal del benchmark
-// ============================================================
+
 
 async function ejecutarBenchmark() {
     console.log('🚀 Iniciando benchmark de búsqueda secuencial vs binaria...\n');
@@ -133,9 +132,8 @@ async function ejecutarBenchmark() {
     return resultados;
 }
 
-// ============================================================
 // 6. Exportación de resultados (CSV y JSON)
-// ============================================================
+
 
 function exportarCSV(resultados, rutaArchivo) {
     const cabecera = 'escenario,tipo_clave,valor_clave,tiempo_secuencial_ms,tiempo_binaria_ms\n';
@@ -151,9 +149,9 @@ function exportarJSON(resultados, rutaArchivo) {
     console.log(`📄 JSON exportado a: ${rutaArchivo}`);
 }
 
-// ============================================================
+
 // 7. Generación del gráfico PNG
-// ============================================================
+
 
 async function generarGrafico(resultados, rutaArchivo) {
     const ancho = 1200;
@@ -246,7 +244,7 @@ async function generarGrafico(resultados, rutaArchivo) {
 
     const buffer = await chartJSNodeCanvas.renderToBuffer(configuracion);
     fs.writeFileSync(rutaArchivo, buffer);
-    console.log(`📈 Gráfico PNG generado en: ${rutaArchivo}`);
+    console.log(` Gráfico PNG generado en: ${rutaArchivo}`);
 }
 
 // ============================================================
@@ -267,10 +265,10 @@ async function generarGrafico(resultados, rutaArchivo) {
 
         await generarGrafico(resultados, path.join(dirResultados, 'benchmark-busqueda.png'));
 
-        console.log('\n✅ Benchmark completado con éxito.');
-        console.log(`📁 Revisa los archivos en: ${dirResultados}`);
+        console.log('\n Benchmark completado con éxito.');
+        console.log(` Revisa los archivos en: ${dirResultados}`);
     } catch (error) {
-        console.error('❌ Error durante el benchmark:', error);
+        console.error(' Error durante el benchmark:', error);
         process.exit(1);
     }
 })();
